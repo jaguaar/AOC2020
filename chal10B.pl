@@ -1,67 +1,19 @@
 #!/usr/bin/perl
 use strict;
+use File::Slurp;
 
 $| = 1;
 
-open my $FILE, "chal10Input.txt" or die $!;
-chomp(our @input = <$FILE>);
-close $FILE;
+###SHAMELESSLY STOLEN###
 
-my $jolt = 0;
-my $currentAdapter = 1;
+my @lines = read_file('chal10Input.txt');
+@lines = sort {$a <=> $b} @lines;
+@lines = map { chomp $_; $_ } sort {$a <=> $b} @lines;
+push @lines, $lines[-1] + 3;
 
-my @possiblePaths;
-our @currentPath = (0);
+my %routes = (0 => 1);
 
-our %finalSolutionPathing;
-
-our $pathCount = 0;
-
-foreach my $path (@currentPath) {
-	whatever($path);
-}
-
-print "Final Paths is $pathCount\n";
-
-sub whatever() {
-	my $jolt = shift;
-	
-	#print "[+] Working with $jolt\n";
-	
-	while (1) {
-		my @possibleAdapters = findAdaptersForJolt($jolt, @input);
-		
-		if($#possibleAdapters > 0) {			
-			foreach my $curAdapter (@possibleAdapters) {
-				#print "$curAdapter for $jolt\n";				
-				push @currentPath, $curAdapter;
-			}
-			
-			return;
-		}
-		
-		if($#possibleAdapters == 0) {
-			$jolt = $possibleAdapters[0];			
-		}
-		
-		if($#possibleAdapters == -1) {
-			$pathCount++;
-			return;
-		}
-	}
-}
-
-sub findAdaptersForJolt() {
-	my $jolt = shift;
-	my @input = @_;
-	
-	my @possibleAdapters;
-	
-	foreach my $adapter (@input) {
-		if($adapter < $jolt + 4 && $adapter > $jolt) {
-			push @possibleAdapters, $adapter;
-		}
-	}
-	
-	return @possibleAdapters;
+foreach my $i (@lines) {
+    $routes{$i} = $routes{$i-1} + $routes{$i-2} + $routes{$i-3};
+    print "$i: $routes{$i}\n";
 }
